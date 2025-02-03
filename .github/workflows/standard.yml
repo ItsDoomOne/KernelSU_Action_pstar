@@ -392,6 +392,12 @@ jobs:
         echo "------------ Patches for backport path_umount ----------------------------------------------------"
         patch -p1 < kernel_patches/patches/${{ env.Kernel_Extra_Version }}/path_umount_backport.patch
 
+    - name: Update DTC
+      run: |
+        cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
+        echo "------------ Update DTC ----------------------------------------------------"
+        git apply kernel_patches/patches/${{ env.Kernel_Extra_Version }}/0001-update-dtc-to-v1.6.1.patch
+
     - name: Remove Warning
       if: env.Remove_Warning == 'true'
       run: |
