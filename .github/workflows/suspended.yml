@@ -174,12 +174,16 @@ jobs:
     - name: Download kernel source
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace
-        git clone ${{ env.KERNEL_SOURCE }} -b ${{ env.KERNEL_SOURCE_BRANCH }} android-kernel --depth=1
+        git clone ${{ env.KERNEL_SOURCE }} -b ${{ env.KERNEL_SOURCE_BRANCH }} android-kernel
         if [[ ${{ env.ADD_LOCALVERSION_TO_FILENAME }} == 'true' ]]; then
           echo "LOCALVERSION=$(cat android-kernel/localversion)" >> $GITHUB_ENV
         else
           echo "LOCALVERSION=" >> $GITHUB_ENV
         fi
+        cd android-kernel
+        git revert --no-commit c4c72ca619c0d49fb99bef4854f8ae5dbd0f36d2
+        git revert --no-commit b3d8216e29fe1fa50cde27e7d652c551f7c6af31
+        git revert --no-commit a4e4b0ecf9d501c7458e2dc86c9fe2200c4d7a18
 
     - name: Generate Kernel Build Config
       if: env.Generate_Build_Config == 'true'
