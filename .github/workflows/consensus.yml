@@ -393,12 +393,12 @@ jobs:
         git apply kernel_patches/patches/${{ env.Kernel_Extra_Version }}/0001-Reapply-cred-switch-to-using-atomic_long_t.patch
         git apply kernel_patches/patches/${{ env.Kernel_Extra_Version }}/0002-BACKPORT-cred-add-get_cred_rcu.patch
 
-    - name: Backport path_umount
+    - name: Add KernelSU hooks
       if: env.ENABLE_KERNELSU == 'true'
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
-        echo "------------ Patches for backport path_umount ----------------------------------------------------"
-        patch -p1 < kernel_patches/patches/${{ env.Kernel_Extra_Version }}/path_umount_backport.patch
+        echo "------------ Patches for KernelSU hooks ----------------------------------------------------"
+        patch -p1 < kernel_patches/patches/${{ env.Kernel_Extra_Version }}/0001-fs-Add-KernelSU-hooks.patch
 
     - name: Update DTC
       run: |
@@ -445,6 +445,7 @@ jobs:
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
         scripts/config --file arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }} \
         -d CONFIG_KSU_SUSFS_SUS_SU \
+        -e CONFIG_KSU_MANUAL_HOOK \
         -e CONFIG_KSU_SUSFS \
         -e CONFIG_KSU
 
@@ -456,9 +457,9 @@ jobs:
         fi
         if [ ${{ env.ADD_KPROBES_CONFIG }} = true -a ${{ env.APPLY_KSU_PATCH }} != true ]; then
             echo "CONFIG_MODULES=y" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
-            echo "CONFIG_KPROBES=y" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
-            echo "CONFIG_HAVE_KPROBES=y" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
-            echo "CONFIG_KPROBE_EVENTS=y" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
+            echo "CONFIG_KPROBES=n" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
+            echo "CONFIG_HAVE_KPROBES=n" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
+            echo "CONFIG_KPROBE_EVENTS=n" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
         fi
         if [ ${{ env.ADD_OVERLAYFS_CONFIG }} = true ]; then
             echo "CONFIG_OVERLAY_FS=y" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
