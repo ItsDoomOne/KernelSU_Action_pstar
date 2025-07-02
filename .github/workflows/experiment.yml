@@ -1,4 +1,4 @@
-name: (pstar) (Experiment) (4.19.157 LOS21) (KSU-Next docker lxc nethunter) Build Kernel
+name: (pstar) (Experiment) (4.19.157) (LOS21 KSU-Next docker lxc nethunter) Build Kernel
 on:
   watch:
     types: [started]
