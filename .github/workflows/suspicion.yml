@@ -310,6 +310,7 @@ jobs:
         -e CONFIG_WLAN_VENDOR_ZYDAS \
         -e CONFIG_USB_ZD1201 \
         -e CONFIG_ZD1211RW \
+        -e CONFIG_R8188EU \
         -e CONFIG_USB_NET_RNDIS_WLAN
 
         # Configuring the Kernel - SDR (https://www.kali.org/docs/nethunter/nethunter-kernel-5-config-4/)
