@@ -363,6 +363,12 @@ jobs:
         # Suppress -Werror for certain warnings to allow building rtl8188eu.
         patch -p1 < kernel_patches/patches/${{ env.Kernel_Extra_Version }}/rtl8188eu-build-fix.patch
 
+        # Try disabling locks on wireless regulatory data to allow override.
+        scripts/config --file arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }} \
+        -d CONFIG_CFG80211_INTERNAL_REGDB \
+        -d CONFIG_CFG80211_USE_KERNEL_REGDB_KEYS \
+        -d CONFIG_CFG80211_REQUIRE_SIGNED_REGDB
+
     - name: Remove ANDROID_PARANOID_NETWORK
       if: env.Remove_ANDROID_PARANOID_NETWORK == 'true'
       run: |
