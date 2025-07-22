@@ -360,7 +360,7 @@ jobs:
         -e CONFIG_NFSD_V3 \
         -e CONFIG_NFSD_V4
 
-        # Add -Wno-error=logical-not-parentheses for rtl8188eu to allow building.
+        # Suppress -Werror for certain warnings to allow building rtl8188eu.
         patch -p1 < kernel_patches/patches/${{ env.Kernel_Extra_Version }}/rtl8188eu-build-fix.patch
 
     - name: Remove ANDROID_PARANOID_NETWORK
