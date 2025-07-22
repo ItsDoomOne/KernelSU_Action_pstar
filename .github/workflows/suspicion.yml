@@ -364,10 +364,9 @@ jobs:
         patch -p1 < kernel_patches/patches/${{ env.Kernel_Extra_Version }}/rtl8188eu-build-fix.patch
 
         # Try disabling locks on wireless regulatory data to allow override.
-        scripts/config --file arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }} \
-        --set-val CONFIG_CFG80211_INTERNAL_REGDB n \
-        --set-val CONFIG_CFG80211_USE_KERNEL_REGDB_KEYS n \
-        --set-val CONFIG_CFG80211_REQUIRE_SIGNED_REGDB n
+        echo "CONFIG_CFG80211_INTERNAL_REGDB=n" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
+        echo "CONFIG_CFG80211_USE_KERNEL_REGDB_KEYS=n" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
+        echo "CONFIG_CFG80211_REQUIRE_SIGNED_REGDB=n" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
 
     - name: Remove ANDROID_PARANOID_NETWORK
       if: env.Remove_ANDROID_PARANOID_NETWORK == 'true'
