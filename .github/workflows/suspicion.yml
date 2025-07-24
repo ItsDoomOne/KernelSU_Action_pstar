@@ -365,8 +365,8 @@ jobs:
 
         # Try disabling locks on wireless regulatory data to allow override.
         scripts/config --file arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }} \
-        -d CONFIG_CFG80211_USE_KERNEL_REGDB_KEYS \
-        -d CONFIG_CFG80211_REQUIRE_SIGNED_REGDB
+        --set-val CONFIG_CFG80211_USE_KERNEL_REGDB_KEYS n\
+        --set-val CONFIG_CFG80211_REQUIRE_SIGNED_REGDB n
 
     - name: Remove ANDROID_PARANOID_NETWORK
       if: env.Remove_ANDROID_PARANOID_NETWORK == 'true'
