@@ -1,4 +1,4 @@
-name: (pstar) (SuSpicion) (4.19.193) (EvoX Wild_KSU docker lxc nethunter susfs) Build Kernel
+name: (pstar) (SuSpicion) (4.19.193) (EvoX KSU-Next docker lxc nethunter susfs) Build Kernel
 on:
   watch:
     types: [started]
@@ -438,7 +438,7 @@ jobs:
       if: env.ENABLE_KERNELSU == 'true'
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
-        curl -LSs "https://raw.githubusercontent.com/WildKernels/Wild_KSU/wild/kernel/setup.sh" | bash -s ${{ env.KERNELSU_TAG }}
+        curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -s ${{ env.KERNELSU_TAG }}
         echo "UPLOADNAME=-KernelSU" >> $GITHUB_ENV
 
     - name: Setup susfs4ksu
