@@ -448,6 +448,7 @@ jobs:
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
         scripts/config --file arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }} \
         -d CONFIG_KSU_SUSFS_SUS_SU \
+        -d CONFIG_KSU_SUSFS_SUS_MAP \
         -d CONFIG_KSU_WITH_KPROBES \
         -e CONFIG_KSU_SUSFS \
         -e CONFIG_KSU
