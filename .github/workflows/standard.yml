@@ -1,4 +1,4 @@
-name: (pstar) (Standard) (4.19.193) (LOS22.2 KSU-Next docker lxc nethunter) Build Kernel
+name: (pstar) (Standard) (4.19.325) (LOS23.0 KSU-Next docker lxc nethunter) Build Kernel
 on:
   watch:
     types: [started]
