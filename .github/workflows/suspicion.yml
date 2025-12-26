@@ -473,6 +473,8 @@ jobs:
         scripts/config --file arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }} \
         -d CONFIG_KSU_SUSFS_SUS_SU \
         -d CONFIG_KSU_WITH_KPROBES \
+        -d CONFIG_KSU_KPROBES_HOOK \
+        -e CONFIG_KSU_MANUAL_HOOK \
         -e CONFIG_KSU_SUSFS \
         -e CONFIG_KSU
 
