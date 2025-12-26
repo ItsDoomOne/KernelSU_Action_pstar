@@ -438,7 +438,9 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
         scripts/config --file arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }} \
-        -d CONFIG_KSU_WITH_KPROBES
+        -d CONFIG_KSU_WITH_KPROBES \
+        -d CONFIG_KSU_KPROBES_HOOK \
+        -e CONFIG_KSU_MANUAL_HOOK
 
     - name: Setup Configuration for Kernel
       run: |
