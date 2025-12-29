@@ -1,4 +1,4 @@
-name: (pstar) (SuStained) (4.19.157) (LOS21 KSU-Next docker lxc nethunter susfs) Build Kernel
+name: (pstar) (SuStained) (4.19.193) (LOS22.2 KSU-Next docker lxc nethunter susfs) Build Kernel
 on:
   watch:
     types: [started]
