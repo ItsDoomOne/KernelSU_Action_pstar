@@ -406,7 +406,10 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
         echo "------------ Patches for KernelSU hooks ----------------------------------------------------"
-        patch -p1 < kernel_patches/patches/${{ env.Kernel_Extra_Version }}/0001-fs-Add-KernelSU-hooks.patch
+        patch -p1 < kernel_patches/patches/${{ env.Kernel_Extra_Version }}/0001-BACKPORT-fs-refactor-ksys_umount.patch
+        patch -p1 < kernel_patches/patches/${{ env.Kernel_Extra_Version }}/0002-BACKPORT-fs-fix-a-struct-path-leak-in-path_umount.patch
+        patch -p1 < kernel_patches/patches/${{ env.Kernel_Extra_Version }}/0003-BACKPORT-umount-2-move-the-flag-validity-checks-firs.patch
+        patch -p1 < kernel_patches/patches/${{ env.Kernel_Extra_Version }}/0004-fs-kernel-input-implement-KernelSU-scope-minimized-m.patch
         patch -p1 < kernel_patches/patches/${{ env.Kernel_Extra_Version }}/0001-PATCH-09-17-BACKPORT-ptrace-Move-setting-clearing-pt.patch
 
     - name: Update DTC
