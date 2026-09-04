@@ -405,7 +405,13 @@ jobs:
             echo "FORMAT_MKBOOTING=$(echo `tools/unpack_bootimg.py --boot_img=boot-source.img --format mkbootimg`)" >> $GITHUB_ENV
             echo "HAVE_SOURCE_BOOT_IMAGE=true" >> $GITHUB_ENV
         fi
-  
+
+    - name: Fix sched.h for SUSFS
+      if: env.ENABLE_KERNELSU == 'true'
+      run: |
+        cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
+        sed -i 's/ANDROID_KABI_RESERVE(8);/ANDROID_KABI_USE(8, u64 susfs_last_fake_mnt_id);/' include/linux/sched.h
+      
     - name: Setup KernelSU
       if: env.ENABLE_KERNELSU == 'true'
       run: |
