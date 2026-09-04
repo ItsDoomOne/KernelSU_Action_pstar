@@ -410,7 +410,12 @@ jobs:
       if: env.ENABLE_KERNELSU == 'true'
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
-        sed -i 's/ANDROID_KABI_RESERVE(8);/ANDROID_KABI_USE(8, u64 susfs_last_fake_mnt_id);/' include/linux/sched.h
+        # Remove duplicate RESERVE declarations that conflict with SUSFS USE declarations
+        sed -i '/ANDROID_KABI_USE(8, u64 susfs_last_fake_mnt_id)/{ n; /ANDROID_KABI_RESERVE(8)/d }' include/linux/sched.h
+        # Also fix slot 2 duplicate
+        sed -i '/ANDROID_KABI_USE(2, unsigned int futex_state)/{ n; /ANDROID_KABI_RESERVE(2)/d }' include/linux/sched.h
+        # Also fix slot 7 duplicate  
+        sed -i '/ANDROID_KABI_RESERVE(7)/{/CONFIG_SCHED_TUNE/!{ N; /ANDROID_KABI_USE(7/d }}' include/linux/sched.h
       
     - name: Setup KernelSU
       if: env.ENABLE_KERNELSU == 'true'
