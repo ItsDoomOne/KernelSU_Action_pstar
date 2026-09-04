@@ -413,6 +413,14 @@ jobs:
         curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -s ${{ env.KERNELSU_TAG }}
         echo "UPLOADNAME=-KernelSU" >> $GITHUB_ENV
 
+    - name: Setup susfs4ksu
+      if: env.ENABLE_KERNELSU == 'true'
+      run: |
+        cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
+        patch -p1 < kernel_patches/patches/${{ env.Kernel_Extra_Version }}/50_add_susfs_in_kernel-${{ env.Kernel_Extra_Version }}-${{ env.SUSFS_VERSION }}.patch
+        cp kernel_patches/patches/${{ env.Kernel_Extra_Version }}/susfs-${{ env.SUSFS_VERSION }}/fs/* fs/
+        cp kernel_patches/patches/${{ env.Kernel_Extra_Version }}/susfs-${{ env.SUSFS_VERSION }}/include/linux/* include/linux/
+    
     - name: Setup susfs4ksu workaround
       if: env.ENABLE_KERNELSU == 'true'
       run: |
