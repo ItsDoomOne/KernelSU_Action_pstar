@@ -386,13 +386,7 @@ jobs:
         echo "------------ Patches for KernelSU hooks ----------------------------------------------------"
         patch -p1 < kernel_patches/patches/${{ env.Kernel_Extra_Version }}/0001-fs-Add-KernelSU-hooks.patch
         patch -p1 < kernel_patches/patches/${{ env.Kernel_Extra_Version }}/0001-PATCH-09-17-BACKPORT-ptrace-Move-setting-clearing-pt.patch
-
-    - name: Update DTC
-      run: |
-        cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
-        echo "------------ Update DTC ----------------------------------------------------"
-        git apply kernel_patches/patches/${{ env.Kernel_Extra_Version }}/0001-update-dtc-to-v1.6.1.patch
-
+        
     - name: Remove Warning
       if: env.Remove_Warning == 'true'
       run: |
