@@ -378,14 +378,7 @@ jobs:
         patch -p1 < kernel_patches/patches/${{ env.Kernel_Extra_Version }}/module.patch
         #https://blog.xzr.moe/archives/236/
         #disable CONFIG_MODVERSIONS is useless
-
-    - name: Backport rename strncpy_from_unsafe_user commit required by kernelsu
-      if: env.ENABLE_KERNELSU == 'true'
-      run: |
-        cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
-        echo "------------ Patches for backport rename strncpy_from_unsafe_user commit required by kernelsu ----------------------------------------------------"
-        git apply kernel_patches/patches/${{ env.Kernel_Extra_Version }}/0001-BACKPORT-maccess-rename-strncpy_from_unsafe_user-to-.patch
-
+        
     - name: Backport cred commit required by kernelsu
       if: env.ENABLE_KERNELSU == 'true'
       run: |
