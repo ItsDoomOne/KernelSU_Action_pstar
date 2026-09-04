@@ -209,7 +209,15 @@ jobs:
         patch -p1 < kernel_patches/patches/${{ env.Kernel_Extra_Version }}/50_add_susfs_in_kernel-${{ env.Kernel_Extra_Version }}-${{ env.SUSFS_VERSION }}.patch || true
         cp kernel_patches/patches/${{ env.Kernel_Extra_Version }}/susfs-${{ env.SUSFS_VERSION }}/fs/* fs/
         cp kernel_patches/patches/${{ env.Kernel_Extra_Version }}/susfs-${{ env.SUSFS_VERSION }}/include/linux/* include/linux/
-    
+
+    - name: Fix KABI conflicts for SUSFS
+      if: env.ENABLE_KERNELSU == 'true'
+      run: |
+        cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
+        # Check for conflicts
+        grep -c "android_kabi_reserved2" include/linux/sched.h && sed -i '0,/ANDROID_KABI_RESERVE(2);/{/ANDROID_KABI_RESERVE(2);/d;}' include/linux/sched.h || true
+        grep -c "android_kabi_reserved8" include/linux/sched.h && sed -i '0,/ANDROID_KABI_RESERVE(8);/{/ANDROID_KABI_RESERVE(8);/d;}' include/linux/sched.h || true
+        
     - name: Setup susfs4ksu workaround
       if: env.ENABLE_KERNELSU == 'true'
       run: |
