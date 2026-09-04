@@ -584,3 +584,19 @@ jobs:
         name: AnyKernel3${{ env.LOCALVERSION }}${{ env.UPLOADNAME }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}
         path: kernel_workspace/AnyKernel3/*
 
+    - name: Make boot image
+      if: env.BUILD_BOOT_IMG == 'true' && env.CHECK_FILE_IS_OK == 'true' && env.HAVE_SOURCE_BOOT_IMAGE == 'true'
+      run: |
+        cd $GITHUB_WORKSPACE/kernel_workspace
+        python3 tools/unpack_bootimg.py --boot_img=boot-source.img --out boot-extract --format=mkbootimg > mkbootimg-args.txt
+        cp android-kernel/out/arch/${{ env.ARCH }}/boot/${{ env.KERNEL_IMAGE_NAME }} boot-extract/kernel
+        eval "python3 tools/mkbootimg.py $(cat mkbootimg-args.txt) --output boot.img"
+        ls -la boot.img
+
+    - name: Upload boot image
+      if: env.BUILD_BOOT_IMG == 'true' && env.CHECK_FILE_IS_OK == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: boot${{ env.LOCALVERSION }}${{ env.UPLOADNAME }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}
+        path: kernel_workspace/boot.img
+
