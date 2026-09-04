@@ -214,9 +214,18 @@ jobs:
       if: env.ENABLE_KERNELSU == 'true'
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
-        # Check for conflicts
-        grep -c "android_kabi_reserved2" include/linux/sched.h && sed -i '0,/ANDROID_KABI_RESERVE(2);/{/ANDROID_KABI_RESERVE(2);/d;}' include/linux/sched.h || true
-        grep -c "android_kabi_reserved8" include/linux/sched.h && sed -i '0,/ANDROID_KABI_RESERVE(8);/{/ANDROID_KABI_RESERVE(8);/d;}' include/linux/sched.h || true
+        
+        echo "Limpando duplicatas do RESERVE(2) e RESERVE(8)..."
+        awk '/ANDROID_KABI_RESERVE\((2|8)\)/ {
+            if (!seen[$0]++) print $0;
+            next;
+        }1' include/linux/sched.h > tmp_sched.h && mv tmp_sched.h include/linux/sched.h
+        
+        echo "Resolvendo conflito do RESERVE(7) vs USE(7)..."
+        sed -i '/ANDROID_KABI_RESERVE(7);/d' include/linux/sched.h
+        
+        echo "Verificação rápida após a correção (se não mostrar nada, está perfeito):"
+        grep -n "ANDROID_KABI" include/linux/sched.h | sort | uniq -d
         
     - name: Setup susfs4ksu workaround
       if: env.ENABLE_KERNELSU == 'true'
