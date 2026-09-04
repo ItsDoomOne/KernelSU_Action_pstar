@@ -417,10 +417,10 @@ jobs:
       if: env.ENABLE_KERNELSU == 'true'
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
-        patch -p1 < kernel_patches/patches/${{ env.Kernel_Extra_Version }}/50_add_susfs_in_kernel-${{ env.Kernel_Extra_Version }}-${{ env.SUSFS_VERSION }}.patch
+        patch -p1 --forward --reject-file=/dev/null < kernel_patches/patches/${{ env.Kernel_Extra_Version }}/50_add_susfs_in_kernel-${{ env.Kernel_Extra_Version }}-${{ env.SUSFS_VERSION }}.patch || true
         cp kernel_patches/patches/${{ env.Kernel_Extra_Version }}/susfs-${{ env.SUSFS_VERSION }}/fs/* fs/
         cp kernel_patches/patches/${{ env.Kernel_Extra_Version }}/susfs-${{ env.SUSFS_VERSION }}/include/linux/* include/linux/
-    
+        
     - name: Setup susfs4ksu workaround
       if: env.ENABLE_KERNELSU == 'true'
       run: |
