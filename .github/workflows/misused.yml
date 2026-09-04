@@ -440,13 +440,6 @@ jobs:
         curl -LSs ${{ env.KERNELSU_SETUP }} | bash -s ${{ env.KERNELSU_TAG }}
         echo "UPLOADNAME=-KernelSU" >> $GITHUB_ENV
 
-    - name: Fix mmap_lock backport for LOS 4.19.325 in KernelSU
-      if: env.ENABLE_KERNELSU == 'true'
-      run: |
-        cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel/${{ env.KERNELSU_ROOT }}
-        sed -i 's/#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 208)/#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 0)/g' kernel/util.c
-        grep -n "KERNEL_VERSION(4, 19, 0)" kernel/util.c || echo "WARN: sed no match"
-
     - name: Apply KSU-side SUSFS patches
       if: env.ENABLE_KERNELSU == 'true' && env.HAS_KSU_SUSFS_PATCHES != 'true'
       run: |
@@ -466,10 +459,10 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
         scripts/config --file arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }} \
-        -d CONFIG_KSU_SUSFS_SUS_SU \
-        -d CONFIG_KSU_WITH_KPROBES \
-        -d CONFIG_KSU_KPROBES_HOOK \
-        -e CONFIG_KSU_MANUAL_HOOK \
+        -s CONFIG_KSU_SUSFS_SUS_SU \
+        -s CONFIG_KSU_WITH_KPROBES \
+        -s CONFIG_KSU_KPROBES_HOOK \
+        -s CONFIG_KSU_MANUAL_HOOK \
         -e CONFIG_KSU_SUSFS \
         -e CONFIG_KSU
 
