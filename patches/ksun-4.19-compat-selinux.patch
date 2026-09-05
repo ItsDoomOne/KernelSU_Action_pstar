@@ -1,0 +1,193 @@
+--- a/selinux/rules.c	2026-09-04 23:10:32.582885571 -0300
++++ b/selinux/rules.c	2026-09-04 23:11:00.206371097 -0300
+@@ -7,6 +7,17 @@
+ #include <linux/slab.h>
+ #include <linux/string.h>
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 11, 0)
++#define selinux_policy selinux_ss
++#include <linux/mutex.h>
++static DEFINE_MUTEX(ksu_policydb_mutex);
++#define ksu_state_policy (selinux_state.ss)
++#define ksu_state_policy_mutex ksu_policydb_mutex
++#else
++#define ksu_state_policy (selinux_state.policy)
++#define ksu_state_policy_mutex (selinux_state.policy_mutex)
++#endif
++
+ #include "uapi/selinux.h"
+ #include "klog.h" // IWYU pragma: keep
+ #include "selinux.h"
+@@ -44,16 +55,16 @@
+ 
+ void apply_kernelsu_rules()
+ {
+-    struct selinux_policy *pol, *old_pol = selinux_state.policy;
++    struct selinux_policy *pol, *old_pol = ksu_state_policy;
+     struct policydb *db;
+ 
+     if (!getenforce()) {
+         pr_info("SELinux permissive or disabled, apply rules!\n");
+     }
+ 
+-    mutex_lock(&selinux_state.policy_mutex);
++    mutex_lock(&ksu_state_policy_mutex);
+     backup_sepolicy =
+-        ksu_dup_sepolicy(rcu_dereference_protected(old_pol, lockdep_is_held(&selinux_state.policy_mutex)));
++        ksu_dup_sepolicy(rcu_dereference_protected(old_pol, lockdep_is_held(&ksu_state_policy_mutex)));
+     if (IS_ERR(backup_sepolicy)) {
+         pr_err("failed to create backup sepolicy: %ld\n", PTR_ERR(backup_sepolicy));
+         backup_sepolicy = NULL;
+@@ -76,7 +87,7 @@
+         }
+     }
+     pol = ksu_dup_sepolicy(rcu_dereference_protected(
+-        old_pol, lockdep_is_held(&selinux_state.policy_mutex)));
++        old_pol, lockdep_is_held(&ksu_state_policy_mutex)));
+     if (IS_ERR(pol)) {
+         pr_err("failed to dup selinux_policy: %ld\n", PTR_ERR(pol));
+         goto out_unlock;
+@@ -173,7 +184,7 @@
+     ksu_allow(db, "kernel", "apk_data_file", "file", "read");
+     ksu_allow(db, "kernel", "apk_data_file", "file", "open");
+ 
+-    rcu_assign_pointer(selinux_state.policy, pol);
++    rcu_assign_pointer(ksu_state_policy, pol);
+     synchronize_rcu();
+     ksu_destroy_sepolicy(old_pol);
+ 
+@@ -184,7 +195,7 @@
+ #endif
+ 
+ out_unlock:
+-    mutex_unlock(&selinux_state.policy_mutex);
++    mutex_unlock(&ksu_state_policy_mutex);
+ }
+ 
+ #define KSU_SEPOLICY_MAX_BATCH_SIZE (8U * 1024U * 1024U)
+@@ -491,11 +502,11 @@
+         pr_info("SELinux permissive or disabled when handle policy!\n");
+     }
+ 
+-    mutex_lock(&selinux_state.policy_mutex);
++    mutex_lock(&ksu_state_policy_mutex);
+ 
+-    old_pol = selinux_state.policy;
++    old_pol = ksu_state_policy;
+     pol = ksu_dup_sepolicy(rcu_dereference_protected(
+-        old_pol, lockdep_is_held(&selinux_state.policy_mutex)));
++        old_pol, lockdep_is_held(&ksu_state_policy_mutex)));
+     if (IS_ERR(pol)) {
+         ret = PTR_ERR(pol);
+         pr_err("ksu_dup_sepolicy err: %d\n", ret);
+@@ -547,7 +558,7 @@
+         cmd_index++;
+     }
+ 
+-    rcu_assign_pointer(selinux_state.policy, pol);
++    rcu_assign_pointer(ksu_state_policy, pol);
+     synchronize_rcu();
+     ksu_destroy_sepolicy(old_pol);
+ 
+@@ -558,7 +569,7 @@
+ out_drop_new_policy:
+     ksu_destroy_sepolicy(pol);
+ out_unlock:
+-    mutex_unlock(&selinux_state.policy_mutex);
++    mutex_unlock(&ksu_state_policy_mutex);
+ out_free:
+     kvfree(payload);
+ 
+--- a/selinux/sepolicy.c	2026-09-04 23:10:32.584256209 -0300
++++ b/selinux/sepolicy.c	2026-09-04 23:10:32.600777804 -0300
+@@ -8,6 +8,10 @@
+ #include <linux/printk.h>
+ #include <linux/slab.h>
+ #include <linux/version.h>
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 11, 0)
++#define selinux_policy selinux_ss
++#endif
+ #include <linux/vmalloc.h>
+ 
+ #include "sepolicy.h"
+--- a/feature/selinux_hide.c	2026-09-04 23:10:32.585143084 -0300
++++ b/feature/selinux_hide.c	2026-09-04 23:11:14.631638062 -0300
+@@ -1,4 +1,13 @@
+-#include "selinux_hide.h"
++#include "selinux_hide.h"#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 11, 0)
++#define selinux_policy selinux_ss
++#define ksu_state_status_lock (selinux_state.ss->status_lock)
++#define ksu_state_status_page (selinux_state.ss->status_page)
++#define ksu_fake_state_policy(fs) ((fs).ss)
++#else
++#define ksu_state_status_lock (selinux_state.status_lock)
++#define ksu_state_status_page (selinux_state.status_page)
++#define ksu_fake_state_policy(fs) ((fs).policy)
++#endif
+ #include "infra/symbol_resolver.h"
+ #include "linux/jump_label.h"
+ #include "selinux/sepolicy.h"
+@@ -252,15 +261,15 @@
+ 
+ void initialize_fake_status()
+ {
+-    mutex_lock(&selinux_state.status_lock);
++    mutex_lock(&ksu_state_status_lock);
+     if (fake_status)
+         goto out;
+-    if (!selinux_state.status_page) {
++    if (!ksu_state_status_page) {
+         pr_warn("initialize_fake_status: status_page not exist\n");
+         goto out;
+     }
+ 
+-    struct selinux_kernel_status *status = page_address(selinux_state.status_page);
++    struct selinux_kernel_status *status = page_address(ksu_state_status_page);
+     if (!status->enforcing && !ksu_late_loaded) {
+         pr_warn("initialize_fake_status: skip not enforcing\n");
+         goto out;
+@@ -296,7 +305,7 @@
+             new_status->policyload, new_status->enforcing);
+ 
+ out:
+-    mutex_unlock(&selinux_state.status_lock);
++    mutex_unlock(&ksu_state_status_lock);
+ }
+ 
+ typedef int (*sel_open_handle_status_fn)(struct inode *inode, struct file *filp);
+@@ -305,9 +314,9 @@
+ {
+     if (likely(current_uid().val >= 10000 && ksu_selinux_hide_enabled)) {
+         void *data;
+-        mutex_lock(&selinux_state.status_lock);
++        mutex_lock(&ksu_state_status_lock);
+         data = fake_status;
+-        mutex_unlock(&selinux_state.status_lock);
++        mutex_unlock(&ksu_state_status_lock);
+         if (data) {
+             filp->private_data = data;
+             return 0;
+@@ -379,7 +388,7 @@
+     }
+ #else
+     fake_state.initialized = true;
+-    fake_state.policy = backup_sepolicy;
++    ksu_fake_state_policy(fake_state) = backup_sepolicy;
+ #endif
+ 
+ #ifndef CONFIG_KSU_SUSFS
+@@ -530,11 +539,11 @@
+     }
+     mutex_unlock(&selinux_hide_mutex);
+     ksu_unregister_feature_handler(KSU_FEATURE_SELINUX_HIDE);
+-    mutex_lock(&selinux_state.status_lock);
++    mutex_lock(&ksu_state_status_lock);
+     if (fake_status)
+         __free_page(fake_status);
+     fake_status = NULL;
+-    mutex_unlock(&selinux_state.status_lock);
++    mutex_unlock(&ksu_state_status_lock);
+ }
+ 
+ void ksu_selinux_hide_drop_backup_if_unused()
