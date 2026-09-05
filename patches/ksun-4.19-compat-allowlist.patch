@@ -1,0 +1,22 @@
+--- a/policy/allowlist.c	2026-09-04 22:58:43.653946599 -0300
++++ b/policy/allowlist.c	2026-09-04 22:58:43.667735991 -0300
+@@ -3,6 +3,7 @@
+ #include <linux/rculist.h>
+ #include <linux/mutex.h>
+ #include <linux/task_work.h>
++#include <linux/sched/task.h>
+ #include <linux/capability.h>
+ #include <linux/compiler.h>
+ #include <linux/fs.h>
+@@ -477,7 +478,11 @@
+ 		goto put_task;
+ 	}
+ 	cb->func = do_persistent_allow_list;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
+ 	if (task_work_add(tsk, cb, TWA_RESUME)) {
++#else
++	if (task_work_add(tsk, cb, true)) {
++#endif
+ 		kfree(cb);
+ 		pr_warn("save_allow_list add task_work failed\n");
+ 	}
