@@ -1,5 +1,5 @@
 --- a/infra/file_wrapper.c	2026-09-04 22:18:52.623378036 -0300
-+++ b/infra/file_wrapper.c	2026-09-04 22:19:07.411091715 -0300
++++ b/infra/file_wrapper.c	2026-09-04 22:26:43.926974822 -0300
 @@ -99,7 +99,7 @@
      kiocb->ki_filp = orig;
      return orig->f_op->iopoll(kiocb, icb, v);
@@ -24,7 +24,7 @@
 +#else
 +static int ksu_wrapper_dedupe_file_range(struct file *file_in, loff_t pos_in,
 +                                         struct file *file_out,
-+                                         loff_t pos_out, loff_t len)
++                                         loff_t pos_out, u64 len)
 +{
 +    struct ksu_file_wrapper *data = file_in->private_data;
 +    struct file *orig = data->orig;
