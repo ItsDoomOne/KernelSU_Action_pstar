@@ -1,0 +1,15 @@
+--- a/infra/su_mount_ns.c	2026-09-04 22:43:00.916881434 -0300
++++ b/infra/su_mount_ns.c	2026-09-04 22:43:00.932544185 -0300
+@@ -13,7 +13,11 @@
+ #include <linux/syscalls.h>
+ #include <linux/task_work.h>
+ #include <linux/version.h>
+-#include <uapi/linux/mount.h>
++#include <uapi/linux/sched.h>
++
++#ifndef CLONE_NEWNS
++#define CLONE_NEWNS 0x00020000
++#endif
+ 
+ #include "arch.h"
+ #include "klog.h" // IWYU pragma: keep
