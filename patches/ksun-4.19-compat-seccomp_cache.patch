@@ -1,0 +1,17 @@
+--- a/infra/seccomp_cache.c	2026-09-04 22:35:00.934710087 -0300
++++ b/infra/seccomp_cache.c	2026-09-04 22:35:03.057852178 -0300
+@@ -5,9 +5,14 @@
+ #include <linux/uaccess.h>
+ #include <linux/filter.h>
+ #include <linux/seccomp.h>
++#include <asm/unistd.h>
+ #include "klog.h" // IWYU pragma: keep
+ #include "infra/seccomp_cache.h"
+ 
++#ifndef SECCOMP_ARCH_NATIVE_NR
++#define SECCOMP_ARCH_NATIVE_NR __NR_syscalls
++#endif
++
+ struct action_cache {
+ 	DECLARE_BITMAP(allow_native, SECCOMP_ARCH_NATIVE_NR);
+ #ifdef SECCOMP_ARCH_COMPAT

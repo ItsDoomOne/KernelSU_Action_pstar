@@ -438,7 +438,12 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
         curl -LSs ${{ env.KERNELSU_SETUP }} | bash -s ${{ env.KERNELSU_TAG }}
-        patch -p1 -d $GITHUB_WORKSPACE/kernel_workspace/android-kernel/drivers/kernelsu < $GITHUB_WORKSPACE/patches/ksun-4.19-compat-file_wrapper.patch
+        cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel/drivers/kernelsu
+        for p in $GITHUB_WORKSPACE/patches/ksun-4.19-*.patch; do
+          [ -f "$p" ] || continue
+          echo "Aplicando $p"
+          patch -p1 < "$p"
+        done
         echo "UPLOADNAME=-KernelSU" >> $GITHUB_ENV
 
     - name: Apply KSU-side SUSFS patches
