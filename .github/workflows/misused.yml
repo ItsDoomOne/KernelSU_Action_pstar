@@ -458,6 +458,13 @@ jobs:
         fi
         echo '#include <linux/kernel.h>' > include/linux/minmax.h
         echo '#include <linux/kernel.h>' > include/linux/hex.h
+        sed -i 's/^#define TIF_PROC_UMOUNTED 33/#define TIF_PROC_UMOUNTED 33\n#define TIF_PROC_NO_SU 34\n#define TIF_PROC_UMOUNTED_FOR_ZYGOTE_NEXT 35/' include/linux/susfs_def.h
+        awk '/^#endif \/\/ #ifndef KSU_SUSFS_DEF_H/ && !done {
+                print "static inline bool susfs_is_current_proc_no_su(void) { return (likely(test_thread_flag(TIF_PROC_NO_SU))); }"
+                print "static inline void susfs_set_current_proc_no_su(void) { set_thread_flag(TIF_PROC_NO_SU); }"
+                print "static inline void susfs_set_current_proc_umounted_for_zygote_next(void) { set_thread_flag(TIF_PROC_UMOUNTED_FOR_ZYGOTE_NEXT); }"
+                done = 1
+        } { print }' include/linux/susfs_def.h > include/linux/susfs_def.h.new && mv include/linux/susfs_def.h.new include/linux/susfs_def.h
 
     - name: Setup susfs4ksu workaround
       if: env.ENABLE_KERNELSU == 'true'
